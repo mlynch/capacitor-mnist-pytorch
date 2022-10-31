@@ -1,0 +1,7 @@
+{
+  "name": "capacitor-mnist-pytorch",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
