@@ -1,4 +1,6 @@
 import {
+  IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -6,24 +8,33 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import DrawCanvas from "../components/DrawCanvas";
-import ExploreContainer from "../components/ExploreContainer";
+import { AppStore } from "../store";
 import "./Home.css";
 
 const Home: React.FC = () => {
+  const clear = AppStore.useState(s => s.clear);
+  const handleClear = () => {
+    AppStore.update(s => {
+      s.clear = true;
+      return s;
+    });
+  }
+  const handleGuess = () => {
+    console.log('Guessing');
+  }
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Blank</IonTitle>
+          <IonTitle>Digits</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={handleClear}>Clear</IonButton>
+            <IonButton onClick={handleGuess}>Guess</IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Digits</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <DrawCanvas />
+        <DrawCanvas clear={clear} />
       </IonContent>
     </IonPage>
   );
