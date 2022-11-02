@@ -17,6 +17,7 @@ export default function DrawCanvas({ clear }: Props) {
   useEffect(() => {
     setCanvasSize([window.innerWidth, window.innerHeight]);
     function handleResize(e: UIEvent) {
+      console.log('Resizing canvas', window.innerWidth, window.innerHeight);
       setCanvasSize([window.innerWidth, window.innerHeight]);
     }
 
@@ -28,7 +29,12 @@ export default function DrawCanvas({ clear }: Props) {
 
   useEffect(() => {
     if (canvasRef.current) {
-      setCtx(canvasRef.current.getContext("2d"));
+      const ctx = canvasRef.current.getContext("2d");
+      setCtx(ctx);
+      AppStore.update(s => {
+        (s as any).ctx = ctx;
+        return s;
+      });
     }
   }, [canvasRef.current]);
 
@@ -49,21 +55,30 @@ export default function DrawCanvas({ clear }: Props) {
       ctx.canvas.height = window.innerHeight;
     }
   }, [ctx]);
+
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     setPrev([e.nativeEvent.offsetX, e.nativeEvent.offsetY]);
     setDrawing(true);
     e.preventDefault();
   }, []);
+
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     setPrev(null);
     setDrawing(false);
   }, []);
+
+  const handlePointerLeave = useCallback((e: React.PointerEvent) => {
+    setPrev(null);
+    setDrawing(false);
+  }, []);
+
   const handlePointerMove = useCallback(
     (e: React.PointerEvent) => {
       if (drawing && prev && ctx) {
         ctx.beginPath();
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 16;
         ctx.lineCap = "round";
+        ctx.lineJoin = "round";
         ctx.strokeStyle = "#000000";
         ctx.moveTo(prev[0], prev[1]);
         ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
@@ -80,11 +95,17 @@ export default function DrawCanvas({ clear }: Props) {
     return (
       <canvas
         ref={canvasRef}
+        style={{
+          width: canvasSize[0],
+          height: canvasSize[1]
+        }}
         width={canvasSize[0]}
         height={canvasSize[1]}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
         onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+        onPointerOut={handlePointerLeave}
       ></canvas>
     );
   }
